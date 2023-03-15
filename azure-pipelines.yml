@@ -41,7 +41,7 @@ steps:
     zipAfterPublish: True
 - task: PublishBuildArtifacts@1
   # PublishBuildArtifact task to copy the folder into a shared location accessible by the release pipeline
-  displayName: Upload the artifact of the build with name 'webapi'
+  displayName: Upload the artifact of the build with name 'HelloDevOps'
   inputs:
     pathtoPublish: '$(Build.ArtifactStagingDirectory)' 
     artifactName: 'HelloDevOps'

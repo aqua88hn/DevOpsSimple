@@ -10,11 +10,40 @@ pool:
   vmImage: ubuntu-latest
 
 variables:
+  solution: '**/*.sln'
+  buildPlatform: 'Any CPU'
   buildConfiguration: 'Release'
+  projectSolution: '.\src\HelloDevOps.csproj'
 
 steps:
 - task: UseDotNet@2
+  displayName: 'Install .net5.0'
   inputs:
     version: '5.0.408'
-- script: dotnet build --configuration $(buildConfiguration)
-  displayName: 'dotnet build $(buildConfiguration)'
+- task: NuGetToolInstaller@1
+  displayName: Install NuGet
+- task: NuGetCommand@2
+  displayName: Restore packages with NuGet
+  inputs:
+    restoreSolution: '$(solution)'
+- task: DotNetCoreCLI@2
+  displayName: Build the project
+  inputs:
+    command: 'build'
+    projects: '**/*.csproj'
+- task: DotNetCoreCLI@2 
+  # DotNetCoreCLI task to publish the binary files into a folder for deployment
+  displayName: Publish the project (dotnet publish)
+  inputs:
+    command: publish
+    publishWebProjects: True
+    arguments: '--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory)'
+    zipAfterPublish: True
+- task: PublishBuildArtifacts@1
+  # PublishBuildArtifact task to copy the folder into a shared location accessible by the release pipeline
+  displayName: Upload the artifact of the build with name 'webapi'
+  inputs:
+    pathtoPublish: '$(Build.ArtifactStagingDirectory)' 
+    artifactName: 'HelloDevOps'
+#- script: dotnet build --configuration $(buildConfiguration)
+#  displayName: 'dotnet build $(buildConfiguration)'
